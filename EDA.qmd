@@ -1,0 +1,63 @@
+---
+title: "EDA"
+format: html
+editor: visual
+---
+
+# Exploratory Data Analysis of the Diabetes Health Indicators Dataset
+
+##### Annie DiFrank
+
+##### ST558 Final Project, December 5, 2024
+
+## Introduction
+
+In this project, we will be exploring the Diabetes Health Indicators Dataset (available on [Kaggle](https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/)).
+
+Diabetes is a serious chronic disease with multiple complications associated. There are many genetic, environmental, and lifestyle factors that can be associated with risk of diabetes. The risk of type II diabetes, the most common form, can differ by race, education, age, income, and many additional factors.
+
+The data analyzed here was collected via a health-related telephone survey conducted by the CDC's Behavioral Risk Factor Surveillance System (BRFSS). These features are either questions directly answered by participants or calculated variables based on participants' responses. We are interested in finding the best model to predict the occurance of prediabetes or diabetes (a binary variable, Diabetes_binary). That is, we are interested in what risk factors are the most predictive of diabetes, and can we use this subset of variables to classify disease occurrence?
+
+With a well-fit model, we could potentially create a risk stratification panel for individuals that have not been diagnosed with prediabetes/diabetes.
+
+In this file, we will perform exploratory data analysis before moving on to modeling with the data.
+
+```{r setup, include=FALSE}
+#pacman to check whether packages are installed, if not load them
+if (!require("pacman")) install.packages("pacman")
+library(pacman)
+pacman::p_load(tidycensus,
+ dplyr,
+ tidyverse,
+ purrr,
+ ggplot2,
+ readr,
+ psych,
+ reshape2,
+ gganimate)
+
+```
+
+## Data Import
+
+```{r dataimport}
+ diabetes <- read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
+```
+
+## Exploratory Analysis/ Clean up
+
+```{r cleanup}
+str(diabetes)
+# all variables have been imported as numeric, going to adjust appropriately- 
+
+```
+
+## Data Summarizations
+
+You should then produce meaningful summary statistics and plots about the data you are working with (especially as it relates to your response).
+
+```{r}
+
+```
+
+\[Click here for the Modeling Page\](Modeling.html)
