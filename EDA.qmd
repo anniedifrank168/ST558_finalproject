@@ -18,9 +18,40 @@ Diabetes is a serious chronic disease with multiple complications associated. Th
 
 The data analyzed here was collected via a health-related telephone survey conducted by the CDC's Behavioral Risk Factor Surveillance System (BRFSS). These features are either questions directly answered by participants or calculated variables based on participants' responses. We are interested in finding the best model to predict the occurance of prediabetes or diabetes (a binary variable, Diabetes_binary). That is, we are interested in what risk factors are the most predictive of diabetes, and can we use this subset of variables to classify disease occurrence?
 
+Especially because we did not personally create this data, the purpose of this exploratory analysis is to get to know the data and how it is stored. This includes overall distributions of variables, how variables are stored (numerically, as factor variables, etc- do the column types make sense for the variable) and any pre-existing relationships between variables that we should be aware of before attempting to fit the data to a predictive model.
+
 With a well-fit model, we could potentially create a risk stratification panel for individuals that have not been diagnosed with prediabetes/diabetes.
 
 In this file, we will perform exploratory data analysis before moving on to modeling with the data.
+
+#### Variable Information
+
+| Variable             | Data Type       | Information                                                                                                          |
+|-------------------------|-----------------------|-------------------------|
+| Diabetes_binary      | binary          | 0 = no diabetes 1 = prediabetes or diabetes                                                                          |
+| HighBP               | binary          | 0 = no high BP 1 = high BP                                                                                           |
+| HighChol             | binary          | 0 = no high cholesterol 1 = high cholesterol                                                                         |
+| CholCheck            | binary          | 0 = no cholesterol check in 5 years 1 = yes cholesterol check in 5 years                                             |
+| BMI                  | integer         | Body Mass Index                                                                                                      |
+| Smoker               | binary          | Have you smoked at least 100 cigarettes in your entire life? 0 = no 1 = yes                                          |
+| Stroke               | binary          | You had a stroke. 0 = no 1 = yes                                                                                     |
+| HeartDiseaseorAttack | binary          | coronary heart disease (CHD) or myocardial infarction (MI) 0 = no 1 = yes                                            |
+| PhysActivity         | binary          | physical activity in past 30 days - not including job 0 = no 1 = yes                                                 |
+| Fruits               | binary          | Consume Fruit 1 or more times per day 0 = no 1 = yes                                                                 |
+| Veggies              | binary          | Consume Vegetables 1 or more times per day 0 = no 1 = yes                                                            |
+| HvyAlcoholConsump    | binary          | Heavy drinker- 0 = no 1 = yes                                                                                        |
+| AnyHealthcare        | binary          | Have any kind of health care coverage, including health insurance, prepaid plans such as HMO, etc. 0 = no 1 = yes    |
+| NoDocbcCost          | binary          | Was there a time in the past 12 months when you needed to see a doctor but could not because of cost? 0 = no 1 = yes |
+| GenHlth              | integer/factor  | Would you say that in general your health is: scale 1-5 1 = excellent 2 = very good 3 = good 4 = fair 5 = poor       |
+| MentHlth             | integer/numeric | For how many days during the past 30 days was your mental health not good? scale 1-30 days                           |
+| PhysHlth             | integer/numeric | For how many days during the past 30 days was your physical health not good? scale 1-30 days                         |
+| DiffWalk             | binary          | Do you have serious difficulty walking or climbing stairs? 0 = no 1 = yes                                            |
+| Sex                  | binary          | 0 = female 1 = male                                                                                                  |
+| Age                  | integer         | 13-level age category (\_AGEG5YR see codebook) 1 = 18-24 9 = 60-64 13 = 80 or older                                  |
+| Education            | integer/factor  | Education level (EDUCA see codebook) scale 1-6                                                                       |
+| Income               | integer/factor  | Income scale (INCOME2 see codebook)                                                                                  |
+
+: Click [here](https://www.cdc.gov/brfss/annual_data/2014/pdf/CODEBOOK14_LLCP.pdf) for the codebook!
 
 ```{r setup, include=FALSE}
 #pacman to check whether packages are installed, if not load them
@@ -50,13 +81,47 @@ pacman::p_load(tidycensus,
 str(diabetes)
 # all variables have been imported as numeric, going to adjust appropriately- 
 
+diabetes <- diabetes %>% 
+  mutate(Diabetes_binary = factor(Diabetes_binary, levels = c(0, 1), labels = c("No", "Yes")),
+         HighBP = factor(HighBP, levels = c(0, 1), labels = c("No", "Yes")),
+         HighChol = factor(HighChol, levels = c(0, 1), labels = c("No", "Yes")),
+        CholCheck = factor(CholCheck, levels = c(0, 1), labels = c("No", "Yes")),
+         Smoker = factor(Smoker, levels = c(0, 1), labels = c("No", "Yes")),
+        Stroke = factor(Stroke, levels = c(0, 1), labels = c("No", "Yes")),
+        HeartDiseaseorAttack = factor(HeartDiseaseorAttack, levels = c(0, 1), labels = c("No", "Yes")),
+        PhysActivity = factor(PhysActivity, levels = c(0, 1), labels = c("No", "Yes")),
+        Fruits = factor(Fruits, levels = c(0, 1), labels = c("No", "Yes")),
+        Veggies = factor(Veggies, levels = c(0, 1), labels = c("No", "Yes")),
+        HvyAlcoholConsump = factor(HvyAlcoholConsump, levels = c(0, 1), labels = c("No", "Yes")),
+        AnyHealthcare = factor(AnyHealthcare, levels = c(0, 1), labels = c("No", "Yes")),
+        NoDocbcCost = factor(NoDocbcCost, levels = c(0, 1), labels = c("No", "Yes")),
+        GenHlth = factor(GenHlth, levels = c(1,2,3,4,5), labels = c("excellent","very good","good","fair","poor")),
+        DiffWalk = factor(DiffWalk, levels = c(0, 1), labels = c("No", "Yes")),
+        Sex = factor(Sex, levels = c(0, 1), labels = c("Female", "Male")),
+        Age = factor(Age, levels = c(1,2,3,4,5,6,7,8,9,10,11,12,13), labels = c("18-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80 or older")),
+        Education = factor(Education, levels = c(1,2,3,4,5,6), labels = c("never attended school or only kindergarten","elementary","some high school","high school graduate","some college or technical school","college graduate")),
+        Income = factor(Income, levels = c(1,2,3,4,5,6,7,8), labels = c("less than 10k","less than 15k", "less than 20k", "less than 25k","less than 35k","less than 50k","less than 75k","75 or more"))
+         )
+
+#Checking for missingness 
+sum(is.na(diabetes))
+  #no NAs 
+
+describe(diabetes)
+ #note, all the categorical variables have * next to the variable name.
+
+
 ```
 
 ## Data Summarizations
 
 You should then produce meaningful summary statistics and plots about the data you are working with (especially as it relates to your response).
 
+First, lets summarize the counts for all the factor variables.
+
 ```{r}
+diabetes %>% group_by(Diabetes_binary) %>% summarize(count=n())
+
 
 ```
 

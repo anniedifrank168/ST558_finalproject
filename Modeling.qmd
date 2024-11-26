@@ -3,3 +3,59 @@ title: "Modeling"
 format: html
 editor: visual
 ---
+
+# Modeling Analysis of the Diabetes Health Indicators Dataset
+
+##### Annie DiFrank
+
+##### ST558 Final Project, December 5, 2024
+
+## Introduction
+
+```{r setup, include=FALSE}
+#pacman to check whether packages are installed, if not load them
+if (!require("pacman")) install.packages("pacman")
+library(pacman)
+pacman::p_load(tidycensus,
+ dplyr,
+ tidyverse,
+ httr,
+ jsonlite,
+ purrr,
+ ggplot2,
+ readr,
+ reshape2,
+ gganimate)
+
+```
+
+## Data Import
+```{r dataimport}
+ diabetes <- read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
+```
+
+## Splitting the Data 
+```{r datasplit}
+
+```
+
+## Classification Tree Modeling
+
+You should provide a thorough explanation of what a classification tree model is. Then you should fit a classification tree with varying values for the complexity parameter and choose the best model (based on 5 fold CV on the training set). Include at least 5 predictors in this model.
+```{r classtree}
+
+```
+
+## Random Forest Modeling
+
+You should provide a thorough explanation of what a random forest is and why we might use it (be sure to relate this to a basic classification tree). You should then fit a random forest model with varying values for the mtry parameter and choose the best model (based on 5 fold CV on the training set). Include at least 5 predictors in this model.
+
+```{r rftree}
+
+```
+
+## Final Model Selection
+```{r}
+
+```
+
