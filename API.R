@@ -16,9 +16,98 @@ diabetes <- diabetes %>%
   select(c(Diabetes_binary, Smoker, Sex, Age, Education, Income, MentHlth))
 
 #fit model- define recipe
-tree_rec <- recipe(Diabetes_binary ~., data = diab_train) %>% 
+tree_rec <- recipe(Diabetes_binary ~., data = diabetes) %>% 
   step_dummy(Age,Income,Sex,Education,Smoker) %>%
   step_normalize(MentHlth)
 
+prep(training = diabetes)
+
+# preprocess the data 
+processed_data <- bake(tree_rec, new_data = diabetes)
+
+
 #fit model to entire dataset, using the best parameters as defined in the modeling section 
-best_model <- rand_forest()
+best_model <- rand_forest(mtry = 6) %>% 
+  select_engine("ranger") %>% 
+  set_mode("classification") %>% 
+  fit(Diabetes_binary ~., data = processed_data)
+
+#Define the API ------
+#*apiTitle Best Model API
+
+
+# Pred endpoint ------
+#* Make predictions based on inputs
+#* @param Age categorical predictor 1 (default:mode)
+#* @param Income categorical predictor 2 (default:mode)
+#* @param Sex categorical predictor 3 (default:mode)
+#* @param Education categorical predictor 4 (default:mode)
+#* @param Smoker categorical predictor 5 (default:mode)
+#* @param MentHlth numeric predictor 6 (default:mean)
+#* @post /pred
+function(Age, Income, Sex, Education, Smoker, MentHlth) {
+  # extract predictors from the request 
+  predictors <- list(
+    Age = as.character(Age) %||% get_mode(diabetes$Age),
+    Income = as.character(Income) %||% get_mode(diabetes$Income),
+    Sex = as.character(Sex) %||% get_mode(diabetes$Sex),
+    Education = as.character(Education) %||% get_mode(diabetes$Education),
+    Smoker = as.character(Smoker) %||% get_mode(diabetes$Smoker),
+    MentHlth = as.numeric(MentHlth) %||% mean(diabetes$MentHlth, na.rm = TRUE)
+  )
+  
+  #convert to dataframe 
+  predictors_df<- as.data.frame(t(unlist(predictors)))
+  
+  #predict with the best model 
+  prediction <- predict(best_model, new_data = bake(tree_rec, new_data = predictors_df))
+  
+  list(prediction = prediction)
+}
+
+#helper function to find the mode
+get_mode <- function(x) {
+  ux <- unique(na.omit(x))
+  ux[which.max(tabulate(match(x,ux)))]
+}
+
+# Example function calls for /pred:
+# Example 1: /pred?Age=50-54&Income=less%20than%2010k&Sex=Female&Education=college%20graduate&Smoker=Yes&Menthlth=0
+# Example 2: /pred?Age=65-69&Income=75%20or%20more&Sex=Male&Education=high%20school%20graduate&Smoker=No&Menthlth=5
+# Example 3: /pred?Age=70-74&Income=less%20than%2010k&Sex=Male&Education=elementary&Smoker=Yes&Menthlth=10
+
+# Info endpoint ------
+#*provide info about the API 
+#*@get /info 
+function() {
+  list(
+    message = "API created by Annie DiFrank",
+    github_page = ""
+  )
+}
+
+#Example function call for /info:
+#Example: /info
+
+#Confusion endpoint ------
+#*plot the confusion matrix 
+#* @serializer png
+#* @get /confusion
+function() {
+  #generate predictions for the training data 
+  predictions <- predict(best_model, new_data = processed_data, type = "class")
+  
+  #combine predictions with true values 
+  results<- bind_cols(
+    truth = processed_data$Diabetes_binary,
+    pred = predictions$.pred_class
+  )
+  
+  #Create confusion matrix plot 
+  cm <- conf_mat(results, truth, pred)
+  autoplot(cm)
+}
+
+#Example function call for /confusion:
+#Example: /confusion
+
