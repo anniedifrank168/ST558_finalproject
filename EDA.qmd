@@ -29,7 +29,7 @@ In this file, we will perform exploratory data analysis before moving on to mode
 #### Variable Information
 
 | Variable        | Data Type       | Information                                                                                |
-|-------------------------|-----------------------|-------------------------|
+|-------------|-------------|----------------------------------------------|
 | Diabetes_binary | binary          | 0 = no diabetes 1 = prediabetes or diabetes                                                |
 | Smoker          | binary          | Have you smoked at least 100 cigarettes in your entire life? 0 = no 1 = yes                |
 | MentHlth        | integer/numeric | For how many days during the past 30 days was your mental health not good? scale 1-30 days |
@@ -115,7 +115,8 @@ ggplot(data = diabetes, aes(x=Age, fill=Diabetes_binary)) +
   labs(x="Age, 5 year bins") +
   scale_fill_discrete("Diabetes")
 ```
-I expected diabetes occurance to have the positive trend with age. It visually looks like it goes down at 70+ years old, but I believe this is just due to the total N of these age groups being lower. 
+
+I expected diabetes occurance to have the positive trend with age. It visually looks like it goes down at 70+ years old, but I believe this is just due to the total N of these age groups being lower.
 
 ```{r sexstatus}
 diabetes %>% group_by(Diabetes_binary,Sex) %>% summarize(count=n())
@@ -222,4 +223,4 @@ We see the same trends here- again highlighting the association between income a
 
 The biggest thing we have gathered from this analysis is that there is an association between two predictor variables, education and income. There are likely other positive associations that just make logical sense (like age and smoking, or age and education or income level). We also saw some potential associations between mental health and other predictor variables as well as with diabetes occurrence.
 
-Next, lets model. Click here to go to the Modeling section! 
+Next, lets model. Click [here](https://anniedifrank168.github.io/ST558_finalproject/Modeling.html) to go to the Modeling section!
