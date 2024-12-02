@@ -7,7 +7,7 @@ library(yardstick)
 library(tidyverse)
 
 # load data, do preprocessing steps
-diabetes <- read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
+diabetes <- read_csv("app/diabetes_binary_health_indicators_BRFSS2015.csv")
 diabetes <- diabetes %>% 
   mutate(Diabetes_binary = factor(Diabetes_binary, levels = c(0, 1), labels = c("No", "Yes")),
          Smoker = factor(Smoker, levels = c(0, 1), labels = c("No", "Yes")),
