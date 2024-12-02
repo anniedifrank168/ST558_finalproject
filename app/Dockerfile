@@ -1,18 +1,9 @@
 # Use the official R base image
 FROM r-base:latest
-
+#FROM rstudio/plumber
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-libcurl4-openssl-dev \
-libxml2-dev \
-libssl-dev \
-libpng-dev \
-pandoc \
-&& apt-get clean \
-&& rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -y libssl-dev libcurl4-gnutls-dev libpng-dev libpng-dev pandoc
     
-ENV http_proxy=http://proxyaddress:port
-ENV https_proxy=http://proxyaddress:port
 # Install necessary R packages
 RUN R -e "install.packages('tidymodels')"
 RUN R -e "install.packages('rpart')"
