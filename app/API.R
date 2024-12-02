@@ -1,7 +1,10 @@
+
 # Load the necessary libraries 
+
 library(plumber)
 library(tidymodels)
 library(yardstick)
+library(tidyverse)
 
 # load data, do preprocessing steps
 diabetes <- read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
@@ -18,9 +21,8 @@ diabetes <- diabetes %>%
 #fit model- define recipe
 tree_rec <- recipe(Diabetes_binary ~., data = diabetes) %>% 
   step_dummy(Age,Income,Sex,Education,Smoker) %>%
-  step_normalize(MentHlth)
-
-prep(training = diabetes)
+  step_normalize(MentHlth) %>% 
+  prep(training = diabetes)
 
 # preprocess the data 
 processed_data <- bake(tree_rec, new_data = diabetes)
@@ -28,7 +30,7 @@ processed_data <- bake(tree_rec, new_data = diabetes)
 
 #fit model to entire dataset, using the best parameters as defined in the modeling section 
 best_model <- rand_forest(mtry = 6) %>% 
-  select_engine("ranger") %>% 
+  set_engine("ranger") %>% 
   set_mode("classification") %>% 
   fit(Diabetes_binary ~., data = processed_data)
 
@@ -110,4 +112,7 @@ function() {
 
 #Example function call for /confusion:
 #Example: /confusion
+
+#curl "http://localhost:8000/pred?Age=45-64&Income=75%20or%20more&Sex=Male&Education=elementary&Smoker=No&MentHlth=3"
+
 
