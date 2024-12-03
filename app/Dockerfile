@@ -2,7 +2,11 @@
 FROM r-base:latest
 #FROM rstudio/plumber
 # Install system dependencies
+<<<<<<< HEAD
 RUN apt-get update -qq && apt-get install -y libssl-dev libxml2-dev libfontconfig1-dev libcurl4-gnutls-dev libpng-dev libpng-dev libsodium-dev freetype2-dev pandoc
+=======
+RUN apt-get update -qq && apt-get install -y libssl-dev libcurl4-gnutls-dev libpng-dev libpng-dev pandoc
+>>>>>>> dc13e2fd37a981d14666ab0c69f84c61d2f96895
     
 # Install necessary R packages
 RUN R -e "install.packages('tidymodels')"
