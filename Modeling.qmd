@@ -10,6 +10,8 @@ editor: visual
 
 ##### ST558 Final Project, December 5, 2024
 
+For some reason this page was set as landing, click [here](EDA.html) for EDA page.
+
 ## Introduction
 
 In this project, we will be exploring the Diabetes Health Indicators Dataset (available on [Kaggle](https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/)).
