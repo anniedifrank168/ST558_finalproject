@@ -4,12 +4,6 @@ library(plumber)
 library(tidymodels)
 library(yardstick)
 library(tidyverse)
-library(ggplot2)
-library(ggfortify)
-library(caret)
-library(tidyr)
-library(dplyr)
-library(gridExtra)
 
 # load data, do preprocessing steps
 diabetes <- read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
@@ -51,7 +45,7 @@ best_model <- rand_forest(mtry = 6) %>%
 #* @param Education categorical predictor 4 (default:mode)
 #* @param Smoker categorical predictor 5 (default:mode)
 #* @param MentHlth numeric predictor 6 (default:mean)
-#* @post /pred
+#* @get /pred
 function(Age = as.character(get_mode(diabetes$Age)),
          Income = as.character(get_mode(diabetes$Income)),
          Sex = as.character(get_mode(diabetes$Sex)),
@@ -75,8 +69,7 @@ function(Age = as.character(get_mode(diabetes$Age)),
   #predict with the best model 
   prediction <- predict(best_model, new_data = processed_input)
   
-  #return the prediction as JSON
-  list(prediction = prediction$.pred_class)
+  list(prediction = prediction)
 }
 
 #helper function to find the mode
@@ -85,60 +78,39 @@ get_mode <- function(x) {
   ux[which.max(tabulate(match(x,ux)))]
 }
 
+# Example function calls for /pred:
+# Example 1: /pred?Age=50-54&Income=less%20than%2010k&Sex=Female&Education=college%20graduate&Smoker=Yes&Menthlth=0
+# Example 2: /pred?Age=65-69&Income=75%20or%20more&Sex=Male&Education=high%20school%20graduate&Smoker=No&Menthlth=5
+# Example 3: /pred?Age=70-74&Income=less%20than%2010k&Sex=Male&Education=elementary&Smoker=Yes&Menthlth=10
 
 # Info endpoint ------
 #*provide info about the API 
 #*@get /info 
 function() {
   list(
-    name = "Annie DiFrank",
-    github = " https://anniedifrank168.github.io/ST558_finalproject/"
+    message = "API created by Annie DiFrank",
+    github_page = ""
   )
 }
 
 #Confusion endpoint ------
 #*plot the confusion matrix 
 #* @serializer png
-#* @post /confusion
+#* @get /confusion
 function() {
-  
-  #Generate predictions for the training data
+  #generate predictions for the training data 
   predictions <- predict(best_model, new_data = processed_data, type = "class")
   
-  # Combine predictions with true values from the processed data
-  results <- tibble(
-      truth = processed_data$Diabetes_binary,
-      pred = predictions$.pred_class
-    )
+  #combine predictions with true values 
+  results<- bind_cols(
+    truth = processed_data$Diabetes_binary,
+    pred = predictions$.pred_class
+  )
   
-  # Generate confusion matrix
-  cm <- confusionMatrix(results$pred, results$truth)
-  cm_data <- as.data.frame(as.table(cm$table))
-  
-  # Create confusion matrix plot
-  p <- ggplot(data = cm_data, aes(x = Prediction, y = Reference)) +
-    geom_tile(aes(fill = Freq), color = "white") +
-    scale_fill_gradient(low = "white", high = "blue") +
-    geom_text(aes(label = Freq), vjust = 1) +
-    theme_minimal() +
-    labs(title = "Confusion Matrix", x = "Predicted", y = "Actual")
-
-  print(p)
+  #Create confusion matrix plot 
+  cm <- conf_mat(results, truth, pred)
+  autoplot(cm)
 }
 
-#Example function calls using curl in the terminal
 
-# curl -X 'POST' \
-# 'http://127.0.0.1:8000/pred?Age=60-64&Income=75%20or%20more&Sex=Female&Education=college%20graduate&Smoker=Yes&MentHlth=25' \
-# -H 'accept: */*' \
-# -d ''
-
-# curl -X 'POST' \
-# 'http://127.0.0.1:8000/pred?Age=18-24&Income=75%20or%20more&Sex=Male&Education=elementary&Smoker=Yes&MentHlth=25' \
-# -H 'accept: */*' \
-# -d ''
-
-# curl -X 'POST' \
-# 'http://127.0.0.1:8000/pred?Age=55-59&Income=less%20than%2010k&Sex=Male&Education=some%20high%20school&Smoker=Yes&MentHlth=20' \
-# -H 'accept: */*' \
-# -d ''
+#curl "http://localhost:8000/pred?Age=45-64&Income=75%20or%20more&Sex=Male&Education=elementary&Smoker=No&MentHlth=3"
