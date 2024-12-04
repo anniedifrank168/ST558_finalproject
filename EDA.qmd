@@ -29,7 +29,7 @@ In this file, we will perform exploratory data analysis before moving on to mode
 #### Variable Information
 
 | Variable        | Data Type       | Information                                                                                |
-|---------------|---------------|------------------------------------------|
+|-----------------|-----------------|--------------------------------------------------------------------------------------------|
 | Diabetes_binary | binary          | 0 = no diabetes 1 = prediabetes or diabetes                                                |
 | Smoker          | binary          | Have you smoked at least 100 cigarettes in your entire life? 0 = no 1 = yes                |
 | MentHlth        | integer/numeric | For how many days during the past 30 days was your mental health not good? scale 1-30 days |
